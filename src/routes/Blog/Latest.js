@@ -19,7 +19,9 @@ export default class Latest extends PureComponent {
     console.log(value);
     this.props.dispatch({
       type: 'articles/search',
-      payload: value,
+      payload: {
+          value:value,
+      },
     });
   }
 
