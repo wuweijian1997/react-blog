@@ -1,27 +1,27 @@
 import request from '../utils/request'
 
 export async function addArticleApi (payload) {
-  return request('/article/add', {
+  return request('/api/article/add', {
     method: 'POST',
     body: payload,
   })
 }
 
 export const fetchLatestApi =  (payload) =>
-  request('/article/latest', {
+  request('/api/article/latest', {
     method: 'POST',
     body: payload,
   })
 
 export async function fetchArticleByIdApi(payload) {
-  return request('/article/get', {
+  return request('/api/article/get', {
     method: 'POST',
     body: payload,
   });
 }
 
 export async function searchArticle(payload) {
-  return request('/article/search', {
+  return request('/api/article/search', {
     method: 'POST',
     body:  payload,
   });
