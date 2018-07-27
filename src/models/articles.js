@@ -4,10 +4,7 @@ import {
   addArticleApi,
   fetchArticleByIdApi,
   fetchLatestApi,
-  updateArticleByIdApi,
-  deleteArticleByIdApi,
-  recoverArticleByIdApi,
-  fetchDeleteArticlesApi,
+  searchArticle,
 } from '../services/aritcles';
 
 export default {
@@ -30,10 +27,6 @@ export default {
     },
     *fetchLatest({ payload }, { call, put }) {
       const resp = yield call(fetchLatestApi, payload);
-      if (resp.status === 40) {
-        message.error('请先登陆管理员账号');
-        yield put(routerRedux.push('/user/login'));
-      }
       yield put({
         type: 'setLatest',
         payload: resp.data,
@@ -42,68 +35,16 @@ export default {
     *fetchArticleById({ payload }, { call, put }) {
       /* Goog */
       const resp = yield call(fetchArticleByIdApi, payload);
-      if (resp.status === 40) {
-        message.error('请先登陆管理员账号');
-        yield put(routerRedux.push('/user/login'));
-      }
-      console.log(resp);
       yield put({
         type: 'setArticle',
         payload: resp.data,
       });
     },
-    *updateArticle({ payload }, { call, put }) {
-      const resp = yield call(updateArticleByIdApi, payload);
-      if (resp.status === 40) {
-        message.error('请先登陆管理员账号');
-        yield put(routerRedux.push('/user/login'));
-      }
+    *search({ payload }, { call, put }) {
+      console.log(payload);
+      const resp = yield call(searchArticle, payload);
       yield put({
-        type: 'setArticle',
-        payload: resp.data,
-      });
-      message.success('修改成功');
-      yield put(routerRedux.push(`/articles/show/${resp.data.id}`));
-    },
-    *deleteArticle({ payload }, { call, put }) {
-      const resp = yield call(deleteArticleByIdApi, payload);
-      if (resp.status === 40) {
-        message.error('请先登陆管理员账号');
-        yield put(routerRedux.push('/user/login'));
-      }
-      if (resp.status == 0) {
-        message.success('删除成功');
-        yield put({
-          type: 'setLatest',
-          payload: resp.data,
-        });
-      } else {
-        message.error('删除失败');
-      }
-    },
-    *recoverArticle({ payload }, { call, put }) {
-      const resp = yield call(recoverArticleByIdApi, payload);
-      if (resp.status == 40) {
-        message.error('请先登陆管理员账号');
-        yield put(routerRedux.push('/user/login'));
-      } else if (resp.status == 0) {
-        message.success('还原成功');
-        yield put({
-          type: 'setRecycle',
-          payload: resp.data,
-        });
-      } else {
-        message.error('还原失败');
-      }
-    },
-    *fetchDeleteArticles({ payload }, { call, put }) {
-      const resp = yield call(fetchDeleteArticlesApi, payload);
-      if (resp.status === 40) {
-        message.error('请先登陆管理员账号');
-        yield put(routerRedux.push('/user/login'));
-      }
-      yield put({
-        type: 'setRecycle',
+        type: 'setLatest',
         payload: resp.data,
       });
     },

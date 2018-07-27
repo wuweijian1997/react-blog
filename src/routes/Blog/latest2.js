@@ -5,10 +5,10 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { Link } from 'react-router-dom';
 
 @connect(state => {
-  const { articles: { recycle } } = state;
-  return { recycle };
+  const { articles: { latest } } = state;
+  return { latest };
 })
-export default class Recycle extends PureComponent {
+export default class Latest extends PureComponent {
 
   componentDidMount() {
     this.listArticle();
@@ -16,35 +16,31 @@ export default class Recycle extends PureComponent {
 
   listArticle = (pageNum, pageSize) => {
     this.props.dispatch({
-      type: 'articles/fetchDeleteArticles',
+      type: 'articles/fetchLatest',
       payload:{
         pageNum: pageNum || 1,
         pageSize: pageSize || 10,
       },
     });
   }
-  // 恢复当前id博客
-  recoverArticleById = (articleId) => {
+  // 删除当前id博客
+  deleteArticleById = (articleId) => {
     this.props.dispatch({
-      type: 'articles/recoverArticle',
+      type: 'articles/deleteArticle',
       payload:{
         articleId: articleId,
       },
     })
   }
 
-
-
   render() {
-    const { recycle } = this.props;
+    const { latest } = this.props;
     const columns = [
       {
         title: '标题',
-        width:  '20%',
-        className: '',
         key:'title',
         render:(article)=> {
-          return  <Link key={article.id} to={`/articles/show/${article.id}`}>{article.title}
+          return  <Link to={`/articles/show/${article.id}`}>{article.title}
           </Link>
         },
       },
@@ -63,15 +59,20 @@ export default class Recycle extends PureComponent {
         title: 'Action',
         key: 'action',
         render: (article) => (
+          <span>
+            <Link to={`/articles/edit/${article.id}`}>
+              <Button type="primary" ghost>修改</Button>
+            </Link>
             <div>
-               <Popconfirm title="Are you sure recover this Article?"
+               <Popconfirm title="Are you sure delete this Article?"
                            onConfirm={() => {
-                             this.recoverArticleById(article.id);
+                             this.deleteArticleById(article.id);
                            }} onCancel={() => {}} okText="Yes" cancelText="No">
-                  <Button type="primary">还原</Button>
+                  <Button type="danger" ghost>删除</Button>
                 </Popconfirm>,
 
             </div>
+      </span>
         ),
       }];
 
@@ -80,23 +81,21 @@ export default class Recycle extends PureComponent {
     }
 
     const pagination = {
-      total: recycle.total,
+      total: latest.total,
       showSizeChanger: true,
-      onShowSizeChanger(current, pageSize) {
-        onChangePage(current, pageSize);
-      },
+        onShowSizeChanger(current, pageSize) {
+          onChangePage(current, pageSize);
+        },
       showQuickJumper: true,
-      onChange (current,pageSize){
+        onShowQuickJumper(current, pageSize) {
+          onChangePage(current, pageSize)
+        },
+      onChange(current,pageSize) {
         onChangePage(current, pageSize)
       },
     };
     return (
-      <PageHeaderLayout
-        title="博客列表"
-        content="显示已被删除的博客"
-      >
-        <Table columns={columns} dataSource={recycle.list} pagination={pagination} />
-      </PageHeaderLayout>
+        <Table columns={columns} dataSource={latest.list} pagination={pagination} />
     );
   }
 }

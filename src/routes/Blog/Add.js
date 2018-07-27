@@ -110,7 +110,7 @@ export default class Add extends PureComponent {
     };
 
     return (
-      <PageHeaderLayout title="博客添加" content="表单页用于用户提交博客。">
+
         <Card bordered={false}>
           <Form onSubmit={this.submitHandler}>
             <FormItem {...formItemLayout} label="文章标题">
@@ -139,7 +139,7 @@ export default class Add extends PureComponent {
               })(
                 <Upload
                   name="file"
-                  action="/api/admin/article/file_upload"
+                  action="/article/file_upload"
                   accept="image/*"
                   listType="picture"
                 >
@@ -195,7 +195,6 @@ export default class Add extends PureComponent {
             </Form.Item>
           </Form>
         </Card>
-      </PageHeaderLayout>
     );
   }
 }

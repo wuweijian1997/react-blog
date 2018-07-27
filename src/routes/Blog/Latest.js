@@ -1,17 +1,26 @@
-import React, { PureComponent } from 'react';
-import { connect } from 'dva/index';
-import { Button, Popconfirm, Table } from 'antd';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import { Link } from 'react-router-dom';
+import React, {PureComponent} from 'react';
+import {connect} from 'dva/index';
+import {Avatar, Col, Icon, List, Row, Input,  Affix, Button} from 'antd';
+import {Link} from 'react-router-dom';
+import styles from './index.less';
+
+const Search = Input.Search;
 
 @connect(state => {
   const { articles: { latest } } = state;
   return { latest };
 })
 export default class Latest extends PureComponent {
-
   componentDidMount() {
     this.listArticle();
+  }
+
+  submitSearchText = (value)=> {
+    console.log(value);
+    this.props.dispatch({
+      type: 'articles/search',
+      payload: value,
+    });
   }
 
   listArticle = (pageNum, pageSize) => {
@@ -23,58 +32,16 @@ export default class Latest extends PureComponent {
       },
     });
   }
-  // 删除当前id博客
-  deleteArticleById = (articleId) => {
-    this.props.dispatch({
-      type: 'articles/deleteArticle',
-      payload:{
-        articleId: articleId,
-      },
-    })
-  }
+
 
   render() {
     const { latest } = this.props;
-    const columns = [
-      {
-        title: '标题',
-        key:'title',
-        render:(article)=> {
-          return  <Link to={`/articles/show/${article.id}`}>{article.title}
-          </Link>
-        },
-      },
-      {
-        title: '用户名',
-        dataIndex: 'username',
-      }, {
-        title: '标签',
-        dataIndex: 'tag',
-      }, {
-        title: '时间',
-        render:(article)=> {
-          return  new Date(article.publishTime).toLocaleString();
-        },
-      }, {
-        title: 'Action',
-        key: 'action',
-        render: (article) => (
-          <span>
-            <Link to={`/articles/edit/${article.id}`}>
-              <Button type="primary" ghost>修改</Button>
-            </Link>
-            <div>
-               <Popconfirm title="Are you sure delete this Article?"
-                           onConfirm={() => {
-                             this.deleteArticleById(article.id);
-                           }} onCancel={() => {}} okText="Yes" cancelText="No">
-                  <Button type="danger" ghost>删除</Button>
-                </Popconfirm>,
-
-            </div>
-      </span>
-        ),
-      }];
+    const IconText = ({type, text}) => (
+      <span>
+    <Icon type={type} style={{marginRight: 8}}/>
+        {text}
+  </span>
+    );
 
     const onChangePage = (pageNum, pageSize) => {
       this.listArticle(pageNum, pageSize);
@@ -83,24 +50,59 @@ export default class Latest extends PureComponent {
     const pagination = {
       total: latest.total,
       showSizeChanger: true,
-        onShowSizeChanger(current, pageSize) {
-          onChangePage(current, pageSize);
-        },
+      onShowSizeChanger(current, pageSize) {
+        onChangePage(current, pageSize);
+      },
       showQuickJumper: true,
-        onShowQuickJumper(current, pageSize) {
-          onChangePage(current, pageSize)
-        },
+      onShowQuickJumper(current, pageSize) {
+        onChangePage(current, pageSize)
+      },
       onChange(current,pageSize) {
         onChangePage(current, pageSize)
       },
     };
+
     return (
-      <PageHeaderLayout
-        title="博客列表"
-        content="显示所有的博客"
-      >
-        <Table columns={columns} dataSource={latest.list} pagination={pagination} />
-      </PageHeaderLayout>
+      <Row>
+        <Col xs={24} sm={{span: 18, offset: 3}}>
+          <Search
+            placeholder="全站搜索博客"
+            className={styles.searchbox}
+            onSearch={value => this.submitSearchText(value)}
+            enterButton
+          />
+        </Col>
+        <Col xs={24} sm={{span: 18, offset: 3}}  >
+          <List
+            itemLayout="vertical"
+            size="large"
+            pagination={pagination}
+            dataSource={latest.list}
+            renderItem={item => (
+
+                <List.Item
+                  key={item.title}
+                  actions={[<IconText type="star-o" text={item.readingQuantity || 0} />,
+                    <IconText type="heart-o" style={{color:'red'}} text={item.likeQuantity || 0} />,
+                    <IconText type="message" text={item.commentQuantity} />,
+
+                  ]}
+                  extra={<img width={300} height={200} alt="logo" src={item.blogPic || 'http://image.wuweijian.cn/wuwei/14/18af0147-7121-4de8-8d7e-b752262cc7a5.jpg'} />}
+                >
+                  <Link to={`/articles/show/${item.id}`} className={styles.blackc}>
+                    <List.Item.Meta
+                      avatar={<Avatar src={item.blogPic} />}
+                      title={<a href={item.href}>{item.title}</a>}
+                    />
+                    {item.content.substr(0,100)}
+                  </Link>
+                </List.Item>
+
+            )}
+          />
+        </Col>
+      </Row>
+
     );
   }
 }
