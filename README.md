@@ -1,5 +1,5 @@
 ### 用react写的博客前端
-** [Demo](https://blog.wuweijian.cn) **
+项目演示线上模板 [Demo](https://blog.wuweijian.cn) 
 
 前端技术：React/redux/dva/Ant.Design
 后端技术：Spring/SpringMVC/Mybatis/PageHelper
