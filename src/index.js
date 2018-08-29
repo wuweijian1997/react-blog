@@ -1,4 +1,3 @@
-import 'simditor/styles/simditor.css';
 import '@babel/polyfill';
 import 'url-polyfill';
 import dva from 'dva';

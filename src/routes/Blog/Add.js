@@ -1,10 +1,10 @@
-import React, { PureComponent } from 'react';
-import { Button, Card, Form, Input, Upload, Icon, Modal } from 'antd';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import { connect } from 'dva/index';
-import RichEditor from '../../utils/rich-editor/index.js';
+import React, {PureComponent} from 'react';
+import {Button, Card, Form, Icon, Input, Upload, Switch} from 'antd';
+import {connect} from 'dva/index';
+import RichEditor from '../../utils/react-editor/index.js';
 
 const FormItem = Form.Item;
+const { TextArea } = Input;
 
 // @connect()
 @Form.create()
@@ -24,6 +24,7 @@ export default class Add extends PureComponent {
     super(props);
     this.state = {
       type: 'add',
+      editor: 0, //标志位，0：富文本编辑器， 1：markdown编辑器。
     };
   }
 
@@ -87,10 +88,19 @@ export default class Add extends PureComponent {
       );
     }
   };
+
+  checkedOnChange = checked => {
+    this.setState({
+      editor : checked == true ? 0 : 1,
+    })
+    console.log(checked)
+    console.log(this.state.editor);
+  }
   // 富文本编辑器的变化
   onDetailValueChange = value => {
+    console.log(value);
     this.setState({
-      detail: value,
+      content: value,
     });
   };
 
@@ -111,90 +121,98 @@ export default class Add extends PureComponent {
 
     return (
 
-        <Card bordered={false}>
-          <Form onSubmit={this.submitHandler}>
-            <FormItem {...formItemLayout} label="文章标题">
-              {getFieldDecorator('title', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入文章标题',
-                  },
-                  {
-                    max: 30,
-                    message: '最多30个字符',
-                  },
-                  {
-                    min: 4,
-                    message: '至少4个字符',
-                  },
-                ],
-                initialValue: title || '',
-              })(<Input placeholder="给文章一个标题" />)}
-            </FormItem>
-            <FormItem {...formItemLayout} label="Upload" extra="请选择你设备上最好看的图片">
-              {getFieldDecorator('blogPic', {
-                valuePropName: 'file',
-                getValueFromEvent: this.normFile,
-              })(
-                <Upload
-                  name="file"
-                  action="/api/admin/article/file_upload"
-                  accept="image/*"
-                  listType="picture"
-                >
-                  <Button>
-                    <Icon type="upload" /> Click to upload
-                  </Button>
-                </Upload>
-              )}
-            </FormItem>
-            <Form.Item {...formItemLayout} label="正文">
+      <Card bordered={false}>
+        <Form onSubmit={this.submitHandler}>
+          <FormItem {...formItemLayout} label="文章标题">
+            {getFieldDecorator('title', {
+              rules: [
+                {
+                  required: true,
+                  message: '请输入文章标题',
+                },
+                {
+                  max: 30,
+                  message: '最多30个字符',
+                },
+                {
+                  min: 4,
+                  message: '至少4个字符',
+                },
+              ],
+              initialValue: title || '',
+            })(<Input placeholder="给文章一个标题"/>)}
+          </FormItem>
+          <FormItem {...formItemLayout} label="Upload" extra="请选择你设备上最好看的图片">
+            {getFieldDecorator('blogPic', {
+              valuePropName: 'file',
+              getValueFromEvent: this.normFile,
+            })(
+              <Upload
+                name="file"
+                action="/api/admin/article/file_upload"
+                accept="image/*"
+                listType="picture"
+              >
+                <Button>
+                  <Icon type="upload"/> Click to upload
+                </Button>
+              </Upload>,
+            )}
+          </FormItem>
+          <FormItem
+            {...formItemLayout}
+            label="使用富文本编辑器"
+          >
+            {getFieldDecorator('editor', { valuePropName: 'editor', initialValue: true })(
+              <Switch onChange={this.checkedOnChange}/>,
+            )}
+          </FormItem>
+          {this.state.editor === 0
+            ?    <Form.Item {...formItemLayout} label="正文">
               {getFieldDecorator('content', {
-                rules: [
-                  {
-                    required: true,
-                    message: '必须有正文',
-                  },
-                  {
-                    min: 8,
-                    message: '至少8个字符',
-                  },
-                ],
                 initialValue: content || '',
               })(
                 <RichEditor
                   defaultDetail={content}
                   default={content}
+                  type={this.state.editor}
                   onChange={value => this.onDetailValueChange(value)}
                 />
+                ,
               )}
-            </Form.Item>
 
-            <FormItem
-              {...formItemLayout}
-              label="标签"
-              wrapperCol={{ span: 20, offset: 0 }}
-              labelCol={{ span: 4, offset: 0 }}
-            >
-              {getFieldDecorator('tag', {
-                initialValue: tag || '',
-              })(<Input placeholder="给文章一个标签" />)}
-            </FormItem>
-            <Form.Item {...formItemLayout}>
-              {getFieldDecorator('id', {
-                initialValue: id,
-                type: 'hidden',
-              })(<Input type="hidden" />)}
             </Form.Item>
+            : <Form.Item {...formItemLayout} label="正文">
+              {getFieldDecorator('content', {
+                initialValue: content || '',
+              })(<TextArea autosize={{ minRows: 20, maxRows: 25 }}/>)}
+            </Form.Item>
+          }
+          <FormItem
+            {...formItemLayout}
+            label="标签"
+            wrapperCol={{ span: 20, offset: 0 }}
+            labelCol={{ span: 4, offset: 0 }}
+          >
+            {getFieldDecorator('tag', {
+              initialValue: tag || '',
+            })(<Input placeholder="给文章一个标签"/>)}
+          </FormItem>
+          <Form.Item {...formItemLayout}>
+            {getFieldDecorator('id', {
+              initialValue: id,
+              type: 'hidden',
+            })(<Input type="hidden"/>)}
+          </Form.Item>
 
-            <Form.Item wrapperCol={{ span: 8, offset: 7 }}>
-              <Button type="primary" size="large" htmlType="submit">
-                保存
-              </Button>
-            </Form.Item>
-          </Form>
-        </Card>
+
+          <Form.Item wrapperCol={{ span: 8, offset: 7 }}>
+            <Button type="primary" size="large" htmlType="submit">
+              保存
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
     );
   }
 }
