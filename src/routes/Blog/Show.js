@@ -27,7 +27,7 @@ class Show extends Component {
       this.props.dispatch({
         type: 'articles/fetchArticleById',
         payload: {
-          articleId: id,
+          id
         },
       });
     }
@@ -55,11 +55,15 @@ class Show extends Component {
   }
 
   render() {
-    const { title, content } = this.props;
+    const { title, content, type, username, headPortrait } = this.props;
     return (
       <PageHeaderLayout title={title}>
         <Card bordered={false}>
-          <ReactMarkdown source={content} />
+            {type == 1 
+            ?  <ReactMarkdown source={content} /> 
+            : <div dangerouslySetInnerHTML={{ __html: content }}></div>
+            }
+         
         </Card>
       </PageHeaderLayout>
     );

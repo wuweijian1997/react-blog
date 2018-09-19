@@ -5,6 +5,8 @@ import {
   fetchArticleByIdApi,
   fetchLatestApi,
   searchArticle,
+  changeBlogLikeStatus,
+  changeBlogStarStatus
 } from '../services/aritcles';
 
 export default {
@@ -17,9 +19,12 @@ export default {
   },
   effects: {
     *addArticle({ payload }, { call, put }) {
+      if(payload.type.key == 'rich') payload.type = 0;
+      else payload.type = 1;
+       /* payload.type = payload.type == true ? 1 : 0;*/
       const resp = yield call(addArticleApi, payload);
-      if (resp.status === 40) {
-        message.error('请先登陆管理员账号');
+      if (resp.status === 20) {
+        message.error('请先登陆账号');
         yield put(routerRedux.push('/user/login'));
       }
       message.success('提交成功');
@@ -34,6 +39,7 @@ export default {
     },
     *fetchArticleById({ payload }, { call, put }) {
       /* Goog */
+           console.log(payload);
       const resp = yield call(fetchArticleByIdApi, payload);
       yield put({
         type: 'setArticle',
@@ -47,6 +53,20 @@ export default {
         type: 'setLatest',
         payload: resp.data,
       });
+    },
+    *changeArticleLikeStatus({ payload }, {call, put}) {
+        const resp = yield call(changeBlogLikeStatus, payload);
+        yield put({
+            type: 'setLatest',
+            payload: resp.data,
+        });
+    },
+    *changeArticleStarStatus({ payload }, {call, put}) {
+        const resp = yield call(changeBlogStarStatus, payload);
+        yield put({
+            type: 'setLatest',
+            payload: resp.data,
+        });
     },
   },
   reducers: {
@@ -70,6 +90,8 @@ export default {
       };
     },
     setRecycle(state, action) {
+        console.log(state)
+        console.log(typeof state);
       const newRecycleObj = action.payload.list
         .map(e => {
           e.key = e.id;
@@ -97,5 +119,20 @@ export default {
         },
       };
     },
+    changeArticleStatus(state, action) {
+        let newLatest = state.latest;
+        newLatest.list
+        .forEach(function (item, index) {
+            if(item.id == 126) { 
+                newLatest.list.splice(index, 1)
+            }
+        });
+        console.log(action.payload.data);
+        newLatest.list.push(action.payload.data);
+        return {
+            ...state,
+            latest:newLatest
+        }
+    }
   },
 };

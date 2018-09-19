@@ -1,11 +1,11 @@
-import React, {PureComponent} from 'react';
-import {Button, Card, Form, Icon, Input, Upload, Switch} from 'antd';
-import {connect} from 'dva/index';
+import React, { PureComponent } from 'react';
+import { Button, Card, Form, Icon, Input, Select, Upload } from 'antd';
+import { connect } from 'dva/index';
 import RichEditor from '../../utils/react-editor/index.js';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
-
+const Option = Select.Option;
 // @connect()
 @Form.create()
 @connect((state, ownProps) => {
@@ -44,6 +44,7 @@ export default class Add extends PureComponent {
   submitHandler = event => {
     event.preventDefault();
     this.props.form.validateFields((errors, values) => {
+      console.log(values);
       if (!errors) {
         if (this.state.type == 'update') {
           this.props.dispatch({
@@ -88,24 +89,21 @@ export default class Add extends PureComponent {
       );
     }
   };
-
-  checkedOnChange = checked => {
-    this.setState({
-      editor : checked == true ? 0 : 1,
-    })
-    console.log(checked)
-    console.log(this.state.editor);
-  }
   // 富文本编辑器的变化
   onDetailValueChange = value => {
-    console.log(value);
     this.setState({
       content: value,
     });
   };
 
+  handleChange = value => {
+    if (value.key == 'rich') {this.setState({editor:0})}
+    else if (value.key == 'markdown') {this.setState({editor:1})}
+    else {this.setState({editor:0})}
+  }
+
   render() {
-    const { getFieldDecorator } = this.props.form;
+    const { getFieldDecorator, getFieldValue } = this.props.form;
     const { title, content, blogPic, id, tag } = this.props;
     const formItemLayout = {
       labelCol: {
@@ -149,7 +147,7 @@ export default class Add extends PureComponent {
             })(
               <Upload
                 name="file"
-                action="/api/admin/article/file_upload"
+                action="/api/file/img_upload"
                 accept="image/*"
                 listType="picture"
               >
@@ -161,14 +159,18 @@ export default class Add extends PureComponent {
           </FormItem>
           <FormItem
             {...formItemLayout}
-            label="使用富文本编辑器"
+            label="编辑器"
           >
-            {getFieldDecorator('editor', { valuePropName: 'editor', initialValue: true })(
-              <Switch onChange={this.checkedOnChange}/>,
+            {getFieldDecorator('type',{ valuePropName: '0',initialValue:
+            {key: "rich", label: "富文本编辑器"} })(
+              <Select labelInValue defaultValue={{ key: 'rich' }} style={{ width: 200 }} onChange={this.handleChange}>
+                <Option value="rich">富文本编辑器</Option>
+                <Option value="markdown">Markdown编辑器</Option>
+              </Select>
             )}
           </FormItem>
           {this.state.editor === 0
-            ?    <Form.Item {...formItemLayout} label="正文">
+            ?    <FormItem {...formItemLayout} label="正文">
               {getFieldDecorator('content', {
                 initialValue: content || '',
               })(
@@ -180,13 +182,12 @@ export default class Add extends PureComponent {
                 />
                 ,
               )}
-
-            </Form.Item>
-            : <Form.Item {...formItemLayout} label="正文">
+            </FormItem>
+            : <FormItem {...formItemLayout} label="正文">
               {getFieldDecorator('content', {
                 initialValue: content || '',
               })(<TextArea autosize={{ minRows: 20, maxRows: 25 }}/>)}
-            </Form.Item>
+            </FormItem>
           }
           <FormItem
             {...formItemLayout}
@@ -198,19 +199,17 @@ export default class Add extends PureComponent {
               initialValue: tag || '',
             })(<Input placeholder="给文章一个标签"/>)}
           </FormItem>
-          <Form.Item {...formItemLayout}>
+          <FormItem {...formItemLayout}>
             {getFieldDecorator('id', {
               initialValue: id,
               type: 'hidden',
             })(<Input type="hidden"/>)}
-          </Form.Item>
-
-
-          <Form.Item wrapperCol={{ span: 8, offset: 7 }}>
+          </FormItem>
+          <FormItem wrapperCol={{ span: 8, offset: 7 }}>
             <Button type="primary" size="large" htmlType="submit">
               保存
             </Button>
-          </Form.Item>
+          </FormItem>
         </Form>
       </Card>
     );

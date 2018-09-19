@@ -4,9 +4,10 @@ export default {
   entry: 'src/index.js',
   extraBabelPlugins: [['import', { libraryName: 'antd', libraryDirectory: 'es', style: true }]],
   proxy: {
-    '/api/admin': {
-      target: 'http://b.wuweijian.cn',
+    '/api/': {
+      // target: 'http://b.wuweijian.cn',
       // target: 'http://localhost:8080',
+      target: 'http://wuweijian.cn:8010',
       changeOrigin: true,
     },
   },

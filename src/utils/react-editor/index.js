@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import Simditor from 'simditor';
 import 'simditor/styles/simditor.css';
 
-export default class RichEditor extends PureComponent {
+export default class RichEditorBackUp extends PureComponent {
   constructor(props) {
     super(props);
   }
