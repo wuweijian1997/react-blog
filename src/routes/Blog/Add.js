@@ -147,7 +147,7 @@ export default class Add extends PureComponent {
             })(
               <Upload
                 name="file"
-                action="/api/file/img_upload"
+                action="/api/article/file/img_upload"
                 accept="image/*"
                 listType="picture"
               >

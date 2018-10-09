@@ -1,47 +1,45 @@
 import React, { PureComponent } from 'react';
-import Simditor from 'simditor';
-import 'simditor/styles/simditor.css';
+import BraftEditor from 'braft-editor'
+import 'braft-editor/dist/index.css'
 
 export default class RichEditorBackUp extends PureComponent {
-  constructor(props) {
-    super(props);
-  }
-  componentDidMount() {
-    this.loadEditor();
-  }
-  componentWillReceiveProps(nextProps) {
-    if (this.props.defaultDetail !== nextProps.defaultDetail) {
-      console.log('set');
-      this.simditor.setValue(nextProps.defaultDetail);
-    }
-  }
-  loadEditor() {
-    let element = this.refs['textarea'];
-    this.simditor = new Simditor({
-      textarea: $(element),
-      defaultValue: '请输入内容',
-      placeholder: '请输入内容',
-      upload: {
-        url: '/file/product/richtext_img_upload.do',
-        defaultImage: '',
-        fileKey: 'upload_file', //后端接口的file名称
-      },
-    });
-    this.simditor.setValue(this.props.defaultDetail || '');
-    this.bindEditorEvent();
+  state = {
+    editorState: null
   }
 
-  //初始化富文本编辑器的事件
-  bindEditorEvent() {
-    this.simditor.on('valuechanged', e => {
-      this.props.onChange(this.simditor.getValue());
-    });
+  async componentDidMount () {
+
+    this.setState({
+      editorState: BraftEditor.createEditorState(this.props.defaultDetail)
+    })
   }
-  render() {
+
+  submitContent = async () => {
+    // 在编辑器获得焦点时按下ctrl+s会执行此方法
+    // 编辑器内容提交到服务端之前，可直接调用editorState.toHTML()来获取HTML格式的内容
+    const htmlContent = this.state.editorState.toHTML()
+    this.props.onChange(htmlContent);
+  }
+
+  handleEditorChange = (editorState) => {
+    this.setState({ editorState })
+    this.props.onChange(editorState.toHTML());
+  }
+
+  render () {
+
+    const { editorState } = this.state
+
     return (
-      <div>
-        <textarea ref="textarea" />
+      <div className="my-component">
+        <BraftEditor
+          value={editorState}
+          onChange={this.handleEditorChange}
+          onSave={this.submitContent}
+        />
       </div>
-    );
+    )
+
   }
+
 }
