@@ -8,8 +8,8 @@ export async function addArticleApi (payload) {
 }
 
 export const fetchLatestApi =  (payload) =>
-  request('/api/article/latest', {
-    method: 'POST',
+  request('/api/article/latest?pageNum='+payload.pageNum + '&pageSize=' + payload.pageSize, {
+    method: 'GET',
     body: payload,
   })
 
@@ -20,8 +20,8 @@ export async function fetchArticleByIdApi(payload) {
 }
 
 export async function searchArticle(payload) {
-  return request('/api/article/search', {
-    method: 'POST',
+  return request('/api/article/s?k='+payload.k, {
+    method: 'GET',
     body:  payload,
   });
 }

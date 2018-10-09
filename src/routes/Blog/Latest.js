@@ -29,7 +29,7 @@ export default class Latest extends PureComponent {
     this.props.dispatch({
       type: 'articles/search',
       payload: {
-          value:value,
+          k:value,
       },
     });
   }
