@@ -31,7 +31,9 @@ export default {
       yield put(routerRedux.push('/articles/list'));
     },
     *fetchLatest({ payload }, { call, put }) {
+      console.log(payload)
       const resp = yield call(fetchLatestApi, payload);
+      console.log(resp);
       yield put({
         type: 'setLatest',
         payload: resp.data,

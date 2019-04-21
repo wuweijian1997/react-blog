@@ -10,7 +10,6 @@ export async function addArticleApi (payload) {
 export const fetchLatestApi =  (payload) =>
   request('/api/article/latest?pageNum='+payload.pageNum + '&pageSize=' + payload.pageSize, {
     method: 'GET',
-    body: payload,
   })
 
 export async function fetchArticleByIdApi(payload) {
